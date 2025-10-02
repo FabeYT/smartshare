@@ -293,6 +293,11 @@
             transition: all 0.2s ease;
         }
 
+        .dark .join {
+            background-color: #248fd24c;
+            border-color: rgb(105, 162, 255);
+        }
+
         .dark .file-item:hover {
             background: linear-gradient(135deg, #323337 0%, #3c3d42 100%);
             border-color: #4a4b50;
@@ -385,6 +390,10 @@
             color: #f87171; 
         }
 
+        .dark .RaumErstellen {
+            color: rgb(249, 182, 60);
+        }
+
         /* Edit name styles */
         .edit-name-input {
             transition: all 0.3s ease;
@@ -406,6 +415,10 @@
             border-color: rgba(251, 146, 60, 0.6);
             box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
             background: linear-gradient(135deg, #35363a 0%, #3f4045 100%);
+        }
+
+        .dark .RaumBeitreten {
+            color: #9bd2ff;
         }
 
         /* Room Styles */
@@ -570,9 +583,9 @@
             </div>
             <div class="flex space-x-2">
                 <div id="roomInfo" class="hidden items-center space-x-2">
-                    <span class="room-badge text-sm" id="currentRoomName">Raum</span>
                     <button id="leaveRoomBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition duration-300 touch-button text-sm">
-                        <i class="fas fa-sign-out-alt mr-1"></i><span class="hidden sm:inline">Verlassen</span>
+                        <i class="fas fa-sign-out-alt mr-1"></i>
+                        <span id="currentRoomName" class="hidden sm:inline">Verlassen</span>
                     </button>
                 </div>
                 <button id="themeToggle" class="bg-gray-200 hover:bg-gray-300 text-gray-800 w-10 h-10 rounded-full flex items-center justify-center transition duration-300 touch-button dark:btn-secondary">
@@ -601,11 +614,11 @@
             
             <div class="grid mobile-grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 dark:bg-orange-900/20 dark:border-orange-700">
-                    <h3 class="font-semibold text-orange-800 dark:text-orange-200 mb-2 flex items-center">
+                    <h3 class="RaumErstellen font-semibold text-orange-800 dark:text-orange-200 mb-2 flex items-center">
                         <i class="fas fa-plus-circle mr-2"></i>
                         Neuen Raum erstellen
                     </h3>
-                    <p class="text-sm text-orange-600 dark:text-orange-300 mb-3">Erstelle einen neuen Raum und lade andere ein beizutreten</p>
+                    <p class="RaumErstellen text-sm text-orange-600 dark:text-orange-300 mb-3">Erstelle einen neuen Raum und lade andere ein beizutreten</p>
                     <div class="space-y-2">
                         <input type="text" id="createRoomName" placeholder="Raumname (z.B. Büro)" class="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:border-orange-500 dark:text-white">
                         <button id="createRoomBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition duration-300 touch-button">
@@ -614,12 +627,12 @@
                     </div>
                 </div>
                 
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 dark:bg-blue-900/20 dark:border-blue-700">
-                    <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center">
+                <div id="join" class="join bg-blue-50 border border-blue-200 rounded-xl p-4 dark:bg-orange-900/20 dark:border-orange-700">
+                    <h3 class="RaumBeitreten font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center">
                         <i class="fas fa-sign-in-alt mr-2"></i>
                         Raum beitreten
                     </h3>
-                    <p class="text-sm text-blue-600 dark:text-blue-300 mb-3">Trete einem bestehenden Raum bei, um Dateien zu teilen</p>
+                    <p class="RaumBeitreten text-sm text-blue-600 dark:text-blue-300 mb-3">Trete einem bestehenden Raum bei, um Dateien zu teilen</p>
                     <div class="space-y-2">
                         <input type="text" id="joinRoomName" placeholder="Raumname eingeben" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-blue-500 dark:text-white">
                         <button id="joinRoomBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition duration-300 touch-button">
