@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETKn Share - Dateien teilen zwischen Geräten</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .file-item {
+            transition: all 0.3s ease;
+        }
+        
+        .file-item:hover {
+            background-color: rgba(255, 165, 0, 0.1);
+        }
+        
+        .connection-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .connected {
+            background-color: #10B981;
+        }
+        
+        .disconnected {
+            background-color: #EF4444;
+        }
+        
+        .away {
+            background-color: #F59E0B;
+        }
+        
+        /* Logo Animation - subtiler */
+        @keyframes logoGlow {
+            0% { 
+                box-shadow: 0 0 5px rgba(249, 115, 22, 0.5);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(249, 115, 22, 0.8);
+                transform: scale(1.02);
+            }
+            100% { 
+                box-shadow: 0 0 5px rgba(249, 115, 22, 0.5);
+                transform: scale(1);
+            }
+        }
+        
+        .logo-animation {
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+        
+        /* Modern Upload Area */
+        .upload-area {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.3);
+        }
+        
+        .upload-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover .upload-icon {
+            transform: scale(1.1);
+            color: #f97316;
+        }
+        
+        /* Modern Dark Mode Styles */
+        .dark {
+            background: linear-gradient(135deg, #1a1b1f 0%, #2d2e32 100%);
+            color: #e2e8f0;
+        }
+
+        .dark .bg-white {
+            background: linear-gradient(145deg, #2a2b2f 0%, #35363a 100%);
+            border: 1px solid #404247;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark .text-gray-800 {
+            color: #f1f5f9;
+        }
+
+        .dark .text-gray-600, .dark .text-gray-500 {
+            color: #94a3b8;
+        }
+
+        .dark .bg-gray-50 {
+            background: linear-gradient(135deg, #2d2e32 0%, #37383d 100%);
+            border: 1px solid #404247;
+        }
+
+        .dark .bg-gray-100 {
+            background: linear-gradient(135deg, #2d2e32 0%, #3a3b40 100%);
+        }
+
+        .dark .bg-gray-200 {
+            background: linear-gradient(135deg, #37383d 0%, #424348 100%);
+        }
+
+        .dark .border-gray-200 {
+            border-color: #4a4b50;
+        }
+
+        .dark .border-gray-300 {
+            border-color: #55565b;
+        }
+
+        .dark .shadow-md {
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.3),
+                0 2px 4px -1px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .dark .shadow-lg {
+            box-shadow: 
+                0 10px 15px -3px rgba(0, 0, 0, 0.4),
+                0 4px 6px -2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .dark .bg-orange-50 {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(234, 88, 12, 0.1) 100%);
+            border: 1px solid rgba(251, 146, 60, 0.2);
+        }
+
+        .dark .border-orange-300 {
+            border-color: rgba(251, 146, 60, 0.4);
+        }
+
+        /* Modern Card Styles */
+        .dark .card-glass {
+            background: linear-gradient(145deg, rgba(42, 43, 47, 0.9) 0%, rgba(53, 54, 58, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Upload Area Dark Mode */
+        .dark .upload-area {
+            background: linear-gradient(135deg, rgba(42, 43, 47, 0.8) 0%, rgba(53, 54, 58, 0.8) 100%);
+            border: 2px dashed rgba(251, 146, 60, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        .dark .upload-area:hover {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(234, 88, 12, 0.05) 100%);
+            border-color: rgba(251, 146, 60, 0.6);
+            box-shadow: 
+                0 0 30px rgba(251, 146, 60, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* Device Cards Dark Mode */
+        .dark .device-card {
+            background: linear-gradient(145deg, #2a2b2f 0%, #35363a 100%);
+            border: 1px solid #404247;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark .device-card:hover {
+            background: linear-gradient(145deg, #2d2e32 0%, #38393d 100%);
+            border-color: #4a4b50;
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 24px rgba(0, 0, 0, 0.3),
+                0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Pinned Devices Dark Mode */
+        .dark .pinned-device {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(234, 88, 12, 0.05) 100%);
+            border: 2px solid rgba(251, 146, 60, 0.4);
+            box-shadow: 
+                0 8px 24px rgba(251, 146, 60, 0.15),
+                inset 0 1px 0 rgba(251, 146, 60, 0.1);
+        }
+
+        /* Status Indicators */
+        .dark .status-online {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .dark .status-offline {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+
+        .dark .status-away {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Buttons Dark Mode */
+        .dark .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            box-shadow: 
+                0 4px 12px rgba(249, 115, 22, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .btn-primary:hover {
+            background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+            box-shadow: 
+                0 6px 16px rgba(249, 115, 22, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .btn-secondary {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border: 1px solid #4b5563;
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .dark .btn-secondary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal Dark Mode */
+        .dark .modal {
+            background: linear-gradient(145deg, rgba(42, 43, 47, 0.95) 0%, rgba(53, 54, 58, 0.95) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* File Items Dark Mode */
+        .dark .file-item {
+            background: linear-gradient(135deg, #2d2e32 0%, #37383d 100%);
+            border: 1px solid #404247;
+            transition: all 0.2s ease;
+        }
+
+        .dark .file-item:hover {
+            background: linear-gradient(135deg, #323337 0%, #3c3d42 100%);
+            border-color: #4a4b50;
+            transform: translateX(4px);
+        }
+
+        /* Connection Status */
+        .dark .connection-status.connected {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .dark .connection-status.disconnected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Scrollbar Dark Mode */
+        .dark ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .dark ::-webkit-scrollbar-track {
+            background: #2d2e32;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+        }
+
+        /* Text Selection */
+        .dark ::selection {
+            background: rgba(251, 146, 60, 0.3);
+            color: #fbbf24;
+        }
+
+        /* Input Fields Dark Mode */
+        .dark input, .dark textarea, .dark select {
+            background: linear-gradient(135deg, #2d2e32 0%, #37383d 100%);
+            border: 1px solid #404247;
+            color: #f1f5f9;
+        }
+
+        .dark input:focus, .dark textarea:focus, .dark select:focus {
+            border-color: rgba(251, 146, 60, 0.6);
+            box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+            background: linear-gradient(135deg, #323337 0%, #3c3d42 100%);
+        }
+
+        /* Platform-specific colors with dark mode adjustments */
+        .dark .platform-windows { 
+            color: #60a5fa; 
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+        }
+        .dark .platform-macos { 
+            color: #d1d5db; 
+        }
+        .dark .platform-linux { 
+            color: #fbbf24; 
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+        .dark .platform-android { 
+            color: #34d399; 
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+        }
+        .dark .platform-ios { 
+            color: #f87171; 
+            text-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
+        }
+
+        .dark .browser-chrome { 
+            color: #60a5fa; 
+        }
+        .dark .browser-firefox { 
+            color: #fb923c; 
+        }
+        .dark .browser-safari { 
+            color: #fbbf24; 
+        }
+        .dark .browser-edge { 
+            color: #60a5fa; 
+        }
+        .dark .browser-opera { 
+            color: #f87171; 
+        }
+
+        /* Edit name styles */
+        .edit-name-input {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .edit-name-input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .dark .edit-name-input {
+            background: linear-gradient(135deg, #323337 0%, #3c3d42 100%);
+            border: 2px solid #4a4b50;
+            color: #f1f5f9;
+        }
+
+        .dark .edit-name-input:focus {
+            border-color: rgba(251, 146, 60, 0.6);
+            box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+            background: linear-gradient(135deg, #35363a 0%, #3f4045 100%);
+        }
+
+        /* Room Styles */
+        .room-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .room-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px -5px rgba(249, 115, 22, 0.3);
+        }
+
+        .active-room {
+            border: 2px solid #f97316;
+            background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%);
+        }
+
+        .dark .active-room {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(234, 88, 12, 0.05) 100%);
+            border-color: rgba(251, 146, 60, 0.6);
+        }
+
+        /* Mobile Optimierungen */
+        @media (max-width: 640px) {
+            .mobile-padding {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .mobile-text-lg {
+                font-size: 1.125rem;
+            }
+            
+            .mobile-text-xl {
+                font-size: 1.25rem;
+            }
+            
+            .mobile-py-3 {
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
+            }
+            
+            .mobile-p-4 {
+                padding: 1rem;
+            }
+            
+            .mobile-space-y-4 > * + * {
+                margin-top: 1rem;
+            }
+            
+            .mobile-grid-cols-1 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Touch-friendly Buttons */
+        .touch-button {
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Desktop/Laptop Optimierungen */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1200px;
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+            
+            .desktop-grid-cols-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .desktop-p-6 {
+                padding: 1.5rem;
+            }
+            
+            .desktop-space-y-6 > * + * {
+                margin-top: 1.5rem;
+            }
+        }
+        
+        /* Platform-specific colors */
+        .platform-windows { color: #0078D4; }
+        .platform-macos { color: #000000; }
+        .platform-linux { color: #FF6600; }
+        .platform-android { color: #3DDC84; }
+        .platform-ios { color: #000000; }
+        .platform-unknown { color: #6B7280; }
+        
+        .browser-chrome { color: #4285F4; }
+        .browser-firefox { color: #FF7139; }
+        .browser-safari { color: #000000; }
+        .browser-edge { color: #0078D7; }
+        .browser-opera { color: #FF1B2D; }
+        .browser-unknown { color: #6B7280; }
+        
+        /* Pinned devices */
+        .pinned-device {
+            border: 2px solid #F59E0B;
+            background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%);
+        }
+        
+        .dark .pinned-device {
+            background: linear-gradient(135deg, #431407 0%, #451a03 100%);
+            border-color: #D97706;
+        }
+        
+        /* Online status badges */
+        .status-online {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .status-offline {
+            background-color: #6B7280;
+            color: white;
+        }
+        
+        .status-away {
+            background-color: #F59E0B;
+            color: white;
+        }
+
+        /* Custom name badge */
+        .custom-name-badge {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        /* Room badge */
+        .room-badge {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen dark:bg-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-sm dark:bg-white/5 dark:backdrop-blur-xl dark:border-b dark:border-white/10">
+        <div class="container mx-auto mobile-padding py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center logo-animation">
+                    <i class="fas fa-share-nodes text-white text-lg"></i>
+                </div>
+                <h1 class="mobile-text-xl font-bold text-gray-800 dark:text-white">ETKn Share</h1>
+                <div id="connectionStatus" class="hidden md:flex items-center ml-4 text-sm">
+                    <span class="connection-status disconnected" id="statusIndicator"></span>
+                    <span id="statusText" class="dark:text-gray-300">Verbinden...</span>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <div id="roomInfo" class="hidden items-center space-x-2">
+                    <span class="room-badge text-sm" id="currentRoomName">Raum</span>
+                    <button id="leaveRoomBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition duration-300 touch-button text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i><span class="hidden sm:inline">Verlassen</span>
+                    </button>
+                </div>
+                <button id="themeToggle" class="bg-gray-200 hover:bg-gray-300 text-gray-800 w-10 h-10 rounded-full flex items-center justify-center transition duration-300 touch-button dark:btn-secondary">
+                    <i class="fas fa-moon text-sm"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Connection Status -->
+        <div class="md:hidden mobile-padding py-2 border-t border-gray-100 dark:border-gray-600">
+            <div id="mobileConnectionStatus" class="flex items-center text-sm">
+                <span class="connection-status disconnected" id="mobileStatusIndicator"></span>
+                <span id="mobileStatusText" class="dark:text-gray-300">Verbinden...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mobile-padding py-6 mobile-space-y-4 desktop-space-y-6">
+        <!-- Room Section -->
+        <section id="roomSection" class="bg-white rounded-xl shadow-md mobile-p-4 desktop-p-6 slide-up dark:card-glass">
+            <h2 class="mobile-text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-door-open text-orange-500 mr-3"></i>
+                Raum beitreten oder erstellen
+            </h2>
+            
+            <div class="grid mobile-grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 dark:bg-orange-900/20 dark:border-orange-700">
+                    <h3 class="font-semibold text-orange-800 dark:text-orange-200 mb-2 flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Neuen Raum erstellen
+                    </h3>
+                    <p class="text-sm text-orange-600 dark:text-orange-300 mb-3">Erstelle einen neuen Raum und lade andere ein beizutreten</p>
+                    <div class="space-y-2">
+                        <input type="text" id="createRoomName" placeholder="Raumname (z.B. Büro)" class="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:border-orange-500 dark:text-white">
+                        <button id="createRoomBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition duration-300 touch-button">
+                            <i class="fas fa-plus mr-2"></i>Raum erstellen
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 dark:bg-blue-900/20 dark:border-blue-700">
+                    <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Raum beitreten
+                    </h3>
+                    <p class="text-sm text-blue-600 dark:text-blue-300 mb-3">Trete einem bestehenden Raum bei, um Dateien zu teilen</p>
+                    <div class="space-y-2">
+                        <input type="text" id="joinRoomName" placeholder="Raumname eingeben" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-blue-500 dark:text-white">
+                        <button id="joinRoomBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition duration-300 touch-button">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Raum beitreten
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center text-gray-500 dark:text-gray-400">
+                <i class="fas fa-users text-2xl mb-2"></i>
+                <p class="text-sm">Wähle einen Raum, um Geräte zu sehen und Dateien zu teilen</p>
+            </div>
+        </section>
+
+        <!-- Upload Section -->
+        <section id="uploadSection" class="bg-white rounded-xl shadow-md mobile-p-4 desktop-p-6 slide-up dark:card-glass hidden">
+            <h2 class="mobile-text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-cloud-upload-alt text-orange-500 mr-3"></i>
+                Daten hochladen
+            </h2>
+            
+            <div id="uploadArea" class="upload-area border-2 border-dashed border-orange-300 rounded-xl p-8 text-center mb-4 transition duration-300 bg-gradient-to-br from-orange-50 to-red-50 dark:upload-area">
+                <div class="upload-icon w-20 h-20 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-lg dark:bg-gray-500">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-orange-500"></i>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-2 text-sm font-medium">Dateien hierher ziehen</p>
+                <p class="text-gray-500 dark:text-gray-400 mb-4 text-xs">oder klicken zum Auswählen</p>
+                <input type="file" id="fileInput" class="hidden" multiple>
+            </div>
+            
+            <div id="fileList" class="space-y-2 hidden">
+                <h3 class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">Ausgewählte Dateien:</h3>
+            </div>
+        </section>
+        
+        <!-- Available Devices Section -->
+        <section id="devicesSection" class="bg-white rounded-xl shadow-md mobile-p-4 desktop-p-6 slide-up dark:card-glass hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="mobile-text-xl font-bold text-gray-800 dark:text-white flex items-center">
+                    <i class="fas fa-laptop text-orange-500 mr-3"></i>
+                    Geräte im Raum
+                    <span id="devicesCount" class="ml-2 bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full dark:bg-orange-900 dark:text-orange-200">0</span>
+                </h2>
+                <div class="flex space-x-2">
+                    <button id="refreshDevices" class="bg-gray-200 hover:bg-gray-400 text-white-700 px-3 py-2 rounded-lg transition duration-300 touch-button text-sm dark:btn-secondary">
+                        <i class="fas fa-sync-alt mr-1"></i><span class="hidden sm:inline">Aktualisieren</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+                <span class="status-online text-xs px-2 py-1 rounded-full">Online</span>
+                <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">Angepinnt</span>
+                <span class="custom-name-badge text-xs">Eigener Name</span>
+            </div>
+            
+            <div id="devicesList" class="grid mobile-grid-cols-1 md:grid-cols-2 desktop-grid-cols-3 gap-3">
+                <div class="text-center py-6 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-search text-2xl mb-2"></i>
+                    <p class="text-sm">Suche nach Geräten im Raum...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Received Files Section -->
+        <section id="receivedSection" class="bg-white rounded-xl shadow-md mobile-p-4 desktop-p-6 hidden slide-up dark:card-glass">
+            <h2 class="mobile-text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                <i class="fas fa-download text-orange-500 mr-3"></i>
+                Empfangene Dateien
+            </h2>
+            
+            <div id="receivedFiles" class="space-y-2">
+            </div>
+        </section>
+    </main>
+
+    <!-- Incoming Files Modal -->
+    <div id="incomingFilesModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in mobile-padding">
+        <div class="bg-white rounded-xl p-4 w-full max-w-md mx-auto dark:modal">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">Eingehende Dateien</h3>
+                <button id="closeIncomingModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white touch-button">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <p id="incomingFrom" class="text-gray-600 dark:text-gray-300 mb-3 text-sm"></p>
+                <div id="incomingFilesList" class="space-y-2 max-h-60 overflow-y-auto">
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="rejectFiles" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-3 rounded-lg transition duration-300 touch-button dark:btn-secondary">
+                    Ablehnen
+                </button>
+                <button id="acceptFiles" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition duration-300 touch-button dark:btn-primary">
+                    Akzeptieren
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Name Modal -->
+    <div id="editNameModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in mobile-padding">
+        <div class="bg-white rounded-xl p-4 w-full max-w-md mx-auto dark:modal">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">Gerätenamen bearbeiten</h3>
+                <button id="closeEditNameModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white touch-button">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <p class="text-gray-600 dark:text-gray-300 mb-3 text-sm">Vergeben Sie einen benutzerdefinierten Namen für dieses Gerät:</p>
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-desktop" id="editDeviceIcon"></i>
+                        <span id="editDeviceOriginal"></span>
+                    </div>
+                    <input type="text" id="editNameInput" placeholder="Mein Gerätename" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent edit-name-input">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dieser Name wird nur auf diesem Gerät gespeichert</p>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="cancelEditName" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-3 rounded-lg transition duration-300 touch-button dark:btn-secondary">
+                    Abbrechen
+                </button>
+                <button id="saveEditName" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition duration-300 touch-button dark:btn-primary">
+                    Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-16 transition-transform duration-300 z-50 hidden max-w-xs dark:bg-gray-700">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+            <span id="toastMessage" class="text-sm">Erfolgreich!</span>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket-Verbindung und Geräteverwaltung
+        let ws = null;
+        let currentDeviceId = null;
+        let selectedFiles = [];
+        let receivedFilesData = new Map();
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        let customDeviceNames = JSON.parse(localStorage.getItem('customDeviceNames') || '{}');
+        let currentRoom = null;
+        
+        // Neue Variablen für eingehende Dateien
+        let pendingIncomingFiles = null;
+        let fileDataStorage = new Map(); // Speichert Dateidaten für spätere Übertragung
+        let currentEditingDevice = null;
+        
+        // DOM-Elemente
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileList = document.getElementById('fileList');
+        const devicesList = document.getElementById('devicesList');
+        const refreshDevices = document.getElementById('refreshDevices');
+        const receivedSection = document.getElementById('receivedSection');
+        const receivedFiles = document.getElementById('receivedFiles');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const themeToggle = document.getElementById('themeToggle');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const mobileConnectionStatus = document.getElementById('mobileConnectionStatus');
+        const mobileStatusIndicator = document.getElementById('mobileStatusIndicator');
+        const mobileStatusText = document.getElementById('mobileStatusText');
+        const devicesCount = document.getElementById('devicesCount');
+        
+        // Room Elements
+        const roomSection = document.getElementById('roomSection');
+        const uploadSection = document.getElementById('uploadSection');
+        const devicesSection = document.getElementById('devicesSection');
+        const createRoomName = document.getElementById('createRoomName');
+        const createRoomBtn = document.getElementById('createRoomBtn');
+        const joinRoomName = document.getElementById('joinRoomName');
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        const roomInfo = document.getElementById('roomInfo');
+        const currentRoomName = document.getElementById('currentRoomName');
+        const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+        
+        // Neue DOM-Elemente für eingehende Dateien
+        const incomingFilesModal = document.getElementById('incomingFilesModal');
+        const closeIncomingModal = document.getElementById('closeIncomingModal');
+        const incomingFrom = document.getElementById('incomingFrom');
+        const incomingFilesList = document.getElementById('incomingFilesList');
+        const rejectFiles = document.getElementById('rejectFiles');
+        const acceptFiles = document.getElementById('acceptFiles');
+        
+        // Edit Name Modal Elemente
+        const editNameModal = document.getElementById('editNameModal');
+        const closeEditNameModal = document.getElementById('closeEditNameModal');
+        const editDeviceIcon = document.getElementById('editDeviceIcon');
+        const editDeviceOriginal = document.getElementById('editDeviceOriginal');
+        const editNameInput = document.getElementById('editNameInput');
+        const cancelEditName = document.getElementById('cancelEditName');
+        const saveEditName = document.getElementById('saveEditName');
+        
+        // Event-Listener
+        document.addEventListener('DOMContentLoaded', init);
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleFileDrop);
+        refreshDevices.addEventListener('click', refreshAvailableDevices);
+        themeToggle.addEventListener('click', toggleTheme);
+        createRoomBtn.addEventListener('click', createRoom);
+        joinRoomBtn.addEventListener('click', joinRoom);
+        leaveRoomBtn.addEventListener('click', leaveRoom);
+        
+        // Enter-Taste für Raum-Eingaben
+        createRoomName.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') createRoom();
+        });
+        
+        joinRoomName.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') joinRoom();
+        });
+        
+        // Neue Event-Listener für eingehende Dateien
+        closeIncomingModal.addEventListener('click', () => incomingFilesModal.classList.add('hidden'));
+        rejectFiles.addEventListener('click', rejectIncomingFiles);
+        acceptFiles.addEventListener('click', acceptIncomingFiles);
+        
+        // Edit Name Modal Event-Listener
+        closeEditNameModal.addEventListener('click', () => editNameModal.classList.add('hidden'));
+        cancelEditName.addEventListener('click', () => editNameModal.classList.add('hidden'));
+        saveEditName.addEventListener('click', saveDeviceName);
+        editNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveDeviceName();
+            }
+        });
+        
+        // Initialisierung
+        function init() {
+            connectWebSocket();
+            
+            // Event-Listener für Klicks außerhalb der Modals
+            incomingFilesModal.addEventListener('click', (e) => {
+                if (e.target === incomingFilesModal) {
+                    incomingFilesModal.classList.add('hidden');
+                }
+            });
+            
+            editNameModal.addEventListener('click', (e) => {
+                if (e.target === editNameModal) {
+                    editNameModal.classList.add('hidden');
+                }
+            });
+            
+            // Theme aus localStorage laden
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // Ping-Interval für Verbindungsüberwachung
+            setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 30000);
+        }
+        
+        // WebSocket-Verbindung herstellen
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            try {
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = () => {
+                    console.log('✅ WebSocket Verbindung hergestellt');
+                    reconnectAttempts = 0;
+                    updateConnectionStatus(true, 'Verbunden');
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (error) {
+                        console.error('❌ Fehler beim Verarbeiten der WebSocket-Nachricht:', error);
+                    }
+                };
+                
+                ws.onclose = (event) => {
+                    console.log('🔌 WebSocket Verbindung geschlossen:', event.code, event.reason);
+                    updateConnectionStatus(false, 'Verbindung getrennt');
+                    
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        const timeout = Math.pow(2, reconnectAttempts) * 1000;
+                        console.log(`🔄 Versuche erneute Verbindung in ${timeout/1000} Sekunden...`);
+                        setTimeout(connectWebSocket, timeout);
+                        reconnectAttempts++;
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    console.error('❌ WebSocket Fehler:', error);
+                    updateConnectionStatus(false, 'Verbindungsfehler');
+                };
+                
+            } catch (error) {
+                console.error('❌ Fehler beim Herstellen der WebSocket-Verbindung:', error);
+                updateConnectionStatus(false, 'Verbindungsfehler');
+            }
+        }
+        
+        // WebSocket-Nachrichten verarbeiten
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'welcome':
+                    currentDeviceId = data.deviceId;
+                    sendDeviceInfo();
+                    break;
+                    
+                case 'deviceList':
+                    updateDeviceList(data.devices);
+                    break;
+                    
+                case 'incomingFile':
+                    showIncomingFilesModal(data.files, data.fromDevice, data.fromDeviceId, data.transferId);
+                    break;
+                    
+                case 'transferStarted':
+                    showToast(`📤 Dateiübertragung an ${data.targetDevice} gestartet`);
+                    break;
+                    
+                case 'transferError':
+                    showToast(`❌ Übertragungsfehler: ${data.message}`, 'error');
+                    break;
+
+                case 'sendFileData':
+                    sendFileDataToReceiver(data.targetDeviceId, data.transferId, data.fileIndex);
+                    break;
+                    
+                case 'fileData':
+                    handleFileData(data);
+                    break;
+                    
+                case 'transferRejected':
+                    showToast('❌ Dateiübertragung abgelehnt', 'error');
+                    break;
+                    
+                case 'transferAccepted':
+                    showToast('✅ Empfänger hat die Dateien angenommen');
+                    break;
+                    
+                case 'deviceNameUpdated':
+                    showToast('✅ Gerätename aktualisiert');
+                    break;
+                    
+                case 'roomCreated':
+                    handleRoomCreated(data);
+                    break;
+                    
+                case 'roomJoined':
+                    handleRoomJoined(data);
+                    break;
+                    
+                case 'roomLeft':
+                    handleRoomLeft();
+                    break;
+                    
+                case 'roomError':
+                    showToast(`❌ Raum-Fehler: ${data.message}`, 'error');
+                    break;
+                    
+                case 'deviceJoined':
+                    showToast(`📱 ${data.deviceName} ist dem Raum beigetreten`);
+                    break;
+                    
+                case 'deviceLeft':
+                    showToast(`🚪 ${data.deviceName} hat den Raum verlassen`);
+                    break;
+                    
+                case 'pong':
+                    break;
+            }
+        }
+        
+        // Raum erstellen
+        function createRoom() {
+            const roomId = createRoomName.value.trim();
+            if (!roomId) {
+                showToast('❌ Bitte geben Sie einen Raumnamen ein', 'error');
+                return;
+            }
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'createRoom',
+                    roomId: roomId,
+                    roomName: roomId
+                }));
+            } else {
+                showToast('❌ Keine Verbindung zum Server', 'error');
+            }
+        }
+        
+        // Raum beitreten
+        function joinRoom() {
+            const roomId = joinRoomName.value.trim();
+            if (!roomId) {
+                showToast('❌ Bitte geben Sie einen Raumnamen ein', 'error');
+                return;
+            }
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'joinRoom',
+                    roomId: roomId
+                }));
+            } else {
+                showToast('❌ Keine Verbindung zum Server', 'error');
+            }
+        }
+        
+        // Raum verlassen
+        function leaveRoom() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'leaveRoom'
+                }));
+            }
+        }
+        
+        // Raum erstellt
+        function handleRoomCreated(data) {
+            currentRoom = data;
+            showRoomInterface();
+            showToast(`🏠 Raum "${data.roomName}" erstellt`);
+        }
+        
+        // Raum beigetreten
+        function handleRoomJoined(data) {
+            currentRoom = data;
+            showRoomInterface();
+            showToast(`🚪 Raum "${data.roomName}" beigetreten`);
+        }
+        
+        // Raum verlassen
+        function handleRoomLeft() {
+            currentRoom = null;
+            hideRoomInterface();
+            showToast('🚪 Raum verlassen');
+        }
+        
+        // Raum-Interface anzeigen
+        function showRoomInterface() {
+            roomSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            devicesSection.classList.remove('hidden');
+            roomInfo.classList.remove('hidden');
+            currentRoomName.textContent = currentRoom.roomName;
+        }
+        
+        // Raum-Interface verstecken
+        function hideRoomInterface() {
+            roomSection.classList.remove('hidden');
+            uploadSection.classList.add('hidden');
+            devicesSection.classList.add('hidden');
+            roomInfo.classList.add('hidden');
+            devicesList.innerHTML = `
+                <div class="text-center py-6 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-search text-2xl mb-2"></i>
+                    <p class="text-sm">Suche nach Geräten im Raum...</p>
+                </div>
+            `;
+        }
+        
+        // Geräteinformationen senden
+        function sendDeviceInfo() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'deviceInfo',
+                    name: getDeviceName(),
+                    type: getDeviceType()
+                }));
+            }
+        }
+        
+        // Geräteliste aktualisieren
+        function updateDeviceList(devices) {
+            devicesList.innerHTML = '';
+            
+            if (devices && devices.length > 0) {
+                let onlineCount = 0;
+                let pinnedCount = 0;
+                
+                // Sortiere Geräte: Zuerst angepinnte, dann online
+                const sortedDevices = devices.sort((a, b) => {
+                    if (a.pinned && !b.pinned) return -1;
+                    if (!a.pinned && b.pinned) return 1;
+                    return new Date(b.lastSeen) - new Date(a.lastSeen);
+                });
+                
+                sortedDevices.forEach(device => {
+                    if (device.id !== currentDeviceId) {
+                        addDeviceToList(device);
+                        if (device.online) onlineCount++;
+                        if (device.pinned) pinnedCount++;
+                    }
+                });
+                
+                devicesCount.textContent = `${onlineCount}`;
+            }
+            
+            if (devicesList.children.length === 0) {
+                devicesList.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 dark:text-gray-400 col-span-full">
+                        <i class="fas fa-users-slash text-2xl mb-2"></i>
+                        <p class="text-sm">Keine Geräte im Raum gefunden</p>
+                        <p class="text-xs mt-1">Andere Geräte müssen demselben Raum beitreten</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Gerät zur Liste hinzufügen
+        function addDeviceToList(device) {
+            const deviceCard = document.createElement('div');
+            
+            let statusClass = 'status-online';
+            let statusText = 'Online';
+            
+            const platformClass = `platform-${device.platform.toLowerCase()}`;
+            const browserClass = `browser-${device.browser.toLowerCase()}`;
+            
+            // Prüfe ob ein benutzerdefinierter Name existiert
+            const customName = customDeviceNames[device.id];
+            const displayName = customName || device.name;
+            const hasCustomName = !!customName;
+            
+            deviceCard.className = `device-card bg-white border border-gray-200 rounded-lg p-3 flex items-center space-x-3 transition duration-300 touch-button dark:device-card ${device.pinned ? 'pinned-device' : ''}`;
+            
+            const iconClass = device.type === 'mobile' ? 'fas fa-mobile-alt' : 
+                             device.type === 'tablet' ? 'fas fa-tablet-alt' : 'fas fa-laptop';
+            
+            deviceCard.innerHTML = `
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 dark:bg-gray-500">
+                    <i class="${iconClass} ${platformClass} text-base"></i>
+                </div>
+                <div class="flex-grow min-w-0">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <h3 class="font-semibold text-gray-800 text-sm truncate dark:text-white">${displayName}</h3>
+                            ${hasCustomName ? '<span class="custom-name-badge text-xs">Eigen</span>' : ''}
+                        </div>
+                        <span class="${statusClass} text-xs px-2 py-1 rounded-full ml-2">${statusText}</span>
+                    </div>
+                    <div class="flex items-center mt-1">
+                        <i class="fas fa-desktop ${platformClass} text-xs mr-2"></i>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 mr-3">${device.platform}</span>
+                        <i class="fas fa-globe ${browserClass} text-xs mr-2"></i>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">${device.browser}</span>
+                    </div>
+                    ${hasCustomName && customName !== device.name ? `<p class="text-xs text-gray-400 mt-1">Original: ${device.name}</p>` : ''}
+                </div>
+                <div class="flex flex-col space-y-1 flex-shrink-0">
+                    <button class="edit-name text-blue-500 hover:text-blue-700 touch-button" data-device-id="${device.id}">
+                        <i class="fas fa-edit text-sm"></i>
+                    </button>
+                    <button class="toggle-pin text-${device.pinned ? 'yellow' : 'gray'}-500 hover:text-${device.pinned ? 'yellow' : 'gray'}-700 touch-button" data-device-id="${device.id}">
+                        <i class="fas fa-star${device.pinned ? '' : '-o'} text-sm"></i>
+                    </button>
+                    ${device.online ? `
+                    <button class="send-files text-orange-500 hover:text-orange-700 touch-button" data-device-id="${device.id}">
+                        <i class="fas fa-paper-plane text-sm"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Event-Listener für Edit-Button
+            const editButton = deviceCard.querySelector('.edit-name');
+            editButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showEditNameModal(device);
+            });
+            
+            // Event-Listener für Pin-Button
+            const pinButton = deviceCard.querySelector('.toggle-pin');
+            pinButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                togglePinDevice(device.id);
+            });
+            
+            // Event-Listener für Senden-Button (nur bei online Geräten)
+            if (device.online) {
+                const sendButton = deviceCard.querySelector('.send-files');
+                sendButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sendFilesToDevice(device);
+                });
+            }
+            
+            // Klick auf Gerät sendet auch Dateien (nur bei online Geräten)
+            if (device.online) {
+                deviceCard.addEventListener('click', () => sendFilesToDevice(device));
+                deviceCard.classList.add('cursor-pointer');
+            } else {
+                deviceCard.classList.add('cursor-not-allowed', 'opacity-70');
+            }
+            
+            devicesList.appendChild(deviceCard);
+        }
+        
+        // Edit Name Modal anzeigen
+        function showEditNameModal(device) {
+            currentEditingDevice = device;
+            const customName = customDeviceNames[device.id] || '';
+            
+            // Setze Icon basierend auf Gerätetyp
+            const iconClass = device.type === 'mobile' ? 'fa-mobile-alt' : 
+                             device.type === 'tablet' ? 'fa-tablet-alt' : 'fa-laptop';
+            editDeviceIcon.className = `fas ${iconClass} platform-${device.platform.toLowerCase()}`;
+            
+            editDeviceOriginal.textContent = `Originalname: ${device.name}`;
+            editNameInput.value = customName;
+            editNameInput.placeholder = device.name;
+            
+            editNameModal.classList.remove('hidden');
+            editNameInput.focus();
+        }
+        
+        // Gerätenamen speichern
+        function saveDeviceName() {
+            if (!currentEditingDevice) return;
+            
+            const newName = editNameInput.value.trim();
+            const deviceId = currentEditingDevice.id;
+            
+            if (newName) {
+                // Speichere Namen lokal
+                customDeviceNames[deviceId] = newName;
+                localStorage.setItem('customDeviceNames', JSON.stringify(customDeviceNames));
+                
+                // Sende Update an Server (optional)
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'updateDeviceName',
+                        name: newName
+                    }));
+                }
+                
+                showToast('✅ Gerätename gespeichert');
+                editNameModal.classList.add('hidden');
+                currentEditingDevice = null;
+                
+                // Aktualisiere die Geräteliste
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            } else {
+                // Wenn Name leer ist, entferne den benutzerdefinierten Namen
+                delete customDeviceNames[deviceId];
+                localStorage.setItem('customDeviceNames', JSON.stringify(customDeviceNames));
+                
+                showToast('✅ Standardname wiederhergestellt');
+                editNameModal.classList.add('hidden');
+                currentEditingDevice = null;
+                
+                // Aktualisiere die Geräteliste
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }
+        }
+        
+        // Verbindungsstatus aktualisieren
+        function updateConnectionStatus(connected, message) {
+            const statusClass = connected ? 'connected' : 'disconnected';
+            const textColor = connected ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+            
+            statusIndicator.className = `connection-status ${statusClass}`;
+            statusText.textContent = message;
+            statusText.className = `dark:text-gray-300 ${textColor}`;
+            connectionStatus.className = `hidden md:flex items-center ml-4 text-sm ${textColor}`;
+            
+            mobileStatusIndicator.className = `connection-status ${statusClass}`;
+            mobileStatusText.textContent = message;
+            mobileStatusText.className = `dark:text-gray-300 ${textColor}`;
+            mobileConnectionStatus.className = `flex items-center text-sm ${textColor}`;
+        }
+        
+        // Gerätenamen ermitteln
+        function getDeviceName() {
+            const ua = navigator.userAgent;
+            if (/Mobile|Android|iP(hone|od)/.test(ua)) {
+                return "Smartphone";
+            } else if (/Tablet|iPad/.test(ua)) {
+                return "Tablet";
+            } else {
+                return "Computer";
+            }
+        }
+        
+        // Gerätetyp ermitteln
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/Mobile|Android|iP(hone|od)/.test(ua)) {
+                return "mobile";
+            } else if (/Tablet|iPad/.test(ua)) {
+                return "tablet";
+            } else {
+                return "desktop";
+            }
+        }
+        
+        // Verfügbare Geräte aktualisieren
+        function refreshAvailableDevices() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                showToast('🔄 Suche nach Geräten...');
+            } else {
+                showToast('❌ Keine Verbindung zum Server', 'error');
+            }
+        }
+        
+        // Gerät anpinnen/abpinnen
+        function togglePinDevice(deviceId) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'togglePinDevice',
+                    targetDeviceId: deviceId
+                }));
+            }
+        }
+        
+        // Dateiauswahl behandeln
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        }
+        
+        // Drag & Drop behandeln
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('border-orange-500', 'bg-orange-100', 'dark:bg-orange-900/30');
+        }
+        
+        function handleFileDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-orange-500', 'bg-orange-100', 'dark:bg-orange-900/30');
+            
+            const files = Array.from(e.dataTransfer.files);
+            processFiles(files);
+        }
+        
+        // Ausgewählte Dateien verarbeiten
+        function processFiles(files) {
+            selectedFiles = [...selectedFiles, ...files];
+            updateFileList();
+            
+            if (files.length > 0) {
+                showToast(`✅ ${files.length} Datei(en) hinzugefügt`);
+            }
+        }
+        
+        // Dateiliste aktualisieren
+        function updateFileList() {
+            fileList.innerHTML = '';
+            
+            if (selectedFiles.length === 0) {
+                fileList.classList.add('hidden');
+                return;
+            }
+            
+            fileList.classList.remove('hidden');
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item bg-gray-50 rounded-lg p-2 flex items-center justify-between dark:bg-gray-600';
+                
+                const fileIcon = getFileIcon(file.type);
+                
+                fileItem.innerHTML = `
+                    <div class="flex items-center space-x-2 min-w-0 flex-grow">
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="${fileIcon} text-orange-500 text-sm"></i>
+                        </div>
+                        <div class="min-w-0 flex-grow">
+                            <p class="font-medium text-gray-800 text-sm truncate dark:text-white">${file.name}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${formatFileSize(file.size)}</p>
+                        </div>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 delete-file touch-button ml-2 flex-shrink-0" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            document.querySelectorAll('.delete-file').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                    selectedFiles.splice(index, 1);
+                    updateFileList();
+                });
+            });
+        }
+        
+        // Datei-Icon basierend auf Dateityp
+        function getFileIcon(fileType) {
+            if (fileType.startsWith('image/')) return 'fas fa-file-image';
+            if (fileType.startsWith('video/')) return 'fas fa-file-video';
+            if (fileType.startsWith('audio/')) return 'fas fa-file-audio';
+            if (fileType === 'application/pdf') return 'fas fa-file-pdf';
+            if (fileType.includes('text') || fileType === 'application/msword' || fileType.includes('document')) return 'fas fa-file-alt';
+            return 'fas fa-file';
+        }
+        
+        // Dateigröße formatieren
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Dateien an Gerät senden
+        function sendFilesToDevice(device) {
+            if (selectedFiles.length === 0) {
+                showToast('❌ Keine Dateien zum Senden ausgewählt', 'error');
+                return;
+            }
+            
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                showToast('❌ Keine Verbindung zum Server', 'error');
+                return;
+            }
+            
+            if (!device.online) {
+                showToast('❌ Gerät ist offline', 'error');
+                return;
+            }
+            
+            const fileInfos = selectedFiles.map(file => ({
+                name: file.name,
+                size: file.size,
+                type: file.type
+            }));
+            
+            // Speichere Dateien für spätere Übertragung
+            const transferId = 'transfer-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            fileDataStorage.set(transferId, selectedFiles);
+            
+            ws.send(JSON.stringify({
+                type: 'fileTransfer',
+                targetDeviceId: device.id,
+                files: fileInfos,
+                transferId: transferId
+            }));
+            
+            showToast(`📤 Dateiübertragung an ${device.name} angefordert...`);
+            selectedFiles = [];
+            updateFileList();
+        }
+        
+        // Modal für eingehende Dateien anzeigen
+        function showIncomingFilesModal(files, fromDevice, fromDeviceId, transferId) {
+            pendingIncomingFiles = {
+                files: files,
+                fromDevice: fromDevice,
+                fromDeviceId: fromDeviceId,
+                transferId: transferId
+            };
+            
+            incomingFrom.textContent = `${fromDevice} möchte ${files.length} Datei(en) senden:`;
+            incomingFilesList.innerHTML = '';
+            
+            files.forEach((fileInfo, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item bg-gray-50 rounded-lg p-2 flex items-center justify-between dark:bg-gray-600';
+                
+                const fileIcon = getFileIcon(fileInfo.type);
+                
+                fileItem.innerHTML = `
+                    <div class="flex items-center space-x-2 min-w-0 flex-grow">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="${fileIcon} text-blue-500 text-sm"></i>
+                        </div>
+                        <div class="min-w-0 flex-grow">
+                            <p class="font-medium text-gray-800 text-sm truncate dark:text-white">${fileInfo.name}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${formatFileSize(fileInfo.size)}</p>
+                        </div>
+                    </div>
+                `;
+                
+                incomingFilesList.appendChild(fileItem);
+            });
+            
+            incomingFilesModal.classList.remove('hidden');
+        }
+        
+        // Eingehende Dateien ablehnen
+        function rejectIncomingFiles() {
+            if (pendingIncomingFiles && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'transferRejected',
+                    fromDeviceId: pendingIncomingFiles.fromDeviceId,
+                    transferId: pendingIncomingFiles.transferId
+                }));
+                
+                showToast('❌ Dateiübertragung abgelehnt');
+                incomingFilesModal.classList.add('hidden');
+                pendingIncomingFiles = null;
+            }
+        }
+        
+        // Eingehende Dateien akzeptieren
+        function acceptIncomingFiles() {
+            if (pendingIncomingFiles && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'transferAccepted',
+                    fromDeviceId: pendingIncomingFiles.fromDeviceId,
+                    transferId: pendingIncomingFiles.transferId
+                }));
+
+                receivedFilesData.set(pendingIncomingFiles.transferId, {
+                    files: pendingIncomingFiles.files,
+                    fromDevice: pendingIncomingFiles.fromDevice,
+                    fromDeviceId: pendingIncomingFiles.fromDeviceId
+                });
+
+                receivedSection.classList.remove('hidden');
+                
+                pendingIncomingFiles.files.forEach((fileInfo, fileIndex) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item bg-green-50 border border-green-200 rounded-lg p-2 flex items-center justify-between slide-up dark:bg-green-900/20 dark:border-green-700';
+                    
+                    const fileIcon = getFileIcon(fileInfo.type);
+                    
+                    fileItem.innerHTML = `
+                        <div class="flex items-center space-x-2 min-w-0 flex-grow">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="${fileIcon} text-green-500 text-sm"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow">
+                                <p class="font-medium text-gray-800 text-sm truncate dark:text-white">${fileInfo.name}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Von ${pendingIncomingFiles.fromDevice} • ${formatFileSize(fileInfo.size)}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-1 flex-shrink-0">
+                            <button class="text-blue-500 hover:text-blue-700 download-file touch-button" data-transfer-id="${pendingIncomingFiles.transferId}" data-file-index="${fileIndex}">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700 delete-received-file touch-button" data-transfer-id="${pendingIncomingFiles.transferId}" data-file-index="${fileIndex}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    receivedFiles.appendChild(fileItem);
+                });
+
+                document.querySelectorAll('.download-file').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const transferId = e.currentTarget.getAttribute('data-transfer-id');
+                        const fileIndex = parseInt(e.currentTarget.getAttribute('data-file-index'));
+                        downloadFile(transferId, fileIndex);
+                    });
+                });
+
+                document.querySelectorAll('.delete-received-file').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const transferId = e.currentTarget.getAttribute('data-transfer-id');
+                        const fileIndex = parseInt(e.currentTarget.getAttribute('data-file-index'));
+                        deleteReceivedFile(transferId, fileIndex);
+                    });
+                });
+
+                showToast('✅ Dateien wurden angenommen und können jetzt heruntergeladen werden');
+                incomingFilesModal.classList.add('hidden');
+                pendingIncomingFiles = null;
+            }
+        }
+        
+        // Dateidaten an Empfänger senden
+        function sendFileDataToReceiver(targetDeviceId, transferId, fileIndex) {
+            const files = fileDataStorage.get(transferId);
+            if (!files || !files[fileIndex]) {
+                console.error('❌ Datei nicht gefunden für Transfer:', transferId, 'Index:', fileIndex);
+                return;
+            }
+
+            const file = files[fileIndex];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'fileData',
+                        targetDeviceId: targetDeviceId,
+                        transferId: transferId,
+                        fileName: file.name,
+                        fileType: file.type,
+                        fileSize: file.size,
+                        data: e.target.result
+                    }));
+                    
+                    console.log(`📨 Datei ${file.name} an Empfänger gesendet`);
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Dateidaten empfangen und verarbeiten
+        function handleFileData(data) {
+            if (data.data && data.data.startsWith('data:')) {
+                const byteString = atob(data.data.split(',')[1]);
+                const mimeString = data.fileType;
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                
+                const blob = new Blob([ab], { type: mimeString });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`✅ "${data.fileName}" wurde heruntergeladen`);
+            }
+        }
+        
+        // Datei herunterladen
+        function downloadFile(transferId, fileIndex) {
+            const transferData = receivedFilesData.get(transferId);
+            if (!transferData) {
+                showToast('❌ Datei nicht gefunden', 'error');
+                return;
+            }
+
+            const fileInfo = transferData.files[fileIndex];
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'requestFileDownload',
+                    transferId: transferId,
+                    fileIndex: fileIndex,
+                    targetDeviceId: transferData.fromDeviceId
+                }));
+                
+                showToast(`📥 "${fileInfo.name}" wird heruntergeladen...`);
+            } else {
+                showToast('❌ Keine Verbindung zum Server', 'error');
+            }
+        }
+        
+        // Empfangene Datei löschen
+        function deleteReceivedFile(transferId, fileIndex) {
+            const transferData = receivedFilesData.get(transferId);
+            if (transferData) {
+                transferData.files.splice(fileIndex, 1);
+                if (transferData.files.length === 0) {
+                    receivedFilesData.delete(transferId);
+                }
+                
+                receivedFiles.innerHTML = '';
+                receivedFilesData.forEach((data, id) => {
+                    data.files.forEach((fileInfo, index) => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item bg-green-50 border border-green-200 rounded-lg p-2 flex items-center justify-between dark:bg-green-900/20 dark:border-green-700';
+                        
+                        const fileIcon = getFileIcon(fileInfo.type);
+                        
+                        fileItem.innerHTML = `
+                            <div class="flex items-center space-x-2 min-w-0 flex-grow">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="${fileIcon} text-green-500 text-sm"></i>
+                                </div>
+                                <div class="min-w-0 flex-grow">
+                                    <p class="font-medium text-gray-800 text-sm truncate dark:text-white">${fileInfo.name}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Von ${data.fromDevice} • ${formatFileSize(fileInfo.size)}</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-1 flex-shrink-0">
+                                <button class="text-blue-500 hover:text-blue-700 download-file touch-button" data-transfer-id="${id}" data-file-index="${index}">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-red-700 delete-received-file touch-button" data-transfer-id="${id}" data-file-index="${index}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `;
+                        
+                        receivedFiles.appendChild(fileItem);
+                    });
+                });
+                
+                document.querySelectorAll('.download-file').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const tId = e.currentTarget.getAttribute('data-transfer-id');
+                        const fIndex = parseInt(e.currentTarget.getAttribute('data-file-index'));
+                        downloadFile(tId, fIndex);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-received-file').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const tId = e.currentTarget.getAttribute('data-transfer-id');
+                        const fIndex = parseInt(e.currentTarget.getAttribute('data-file-index'));
+                        deleteReceivedFile(tId, fIndex);
+                    });
+                });
+                
+                if (receivedFiles.children.length === 0) {
+                    receivedSection.classList.add('hidden');
+                }
+                
+                showToast('🗑️ Datei gelöscht');
+            }
+        }
+        
+        // Toast-Benachrichtigung anzeigen
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            
+            if (type === 'error') {
+                toast.querySelector('i').className = 'fas fa-exclamation-circle text-red-400 mr-2';
+            } else {
+                toast.querySelector('i').className = 'fas fa-check-circle text-green-400 mr-2';
+            }
+            
+            toast.classList.remove('hidden');
+            toast.classList.remove('translate-y-16');
+            toast.classList.add('translate-y-0');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0');
+                toast.classList.add('translate-y-16');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+        
+        // Theme umschalten
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+    </script>
+</body>
+</html>
